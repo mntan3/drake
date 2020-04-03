@@ -519,6 +519,25 @@ GTEST_TEST(MultibodyPlantSdfParserTest, JointActuatorParsingTest) {
       std::logic_error, "There is no joint actuator named '.*' in the model.");
 }
 
+// Verifies that the SDF parser parses the revolute spring parameters correctly.
+GTEST_TEST(MultibodyPlantSdfParserTest, RevoluteSpringParsingTest) {
+  MultibodyPlant<double> plant(0.0);
+
+  const std::string full_name = FindResourceOrThrow(
+      "drake/multibody/parsing/test/sdf_parser_test/"
+      "revolute_spring_parsing_test.sdf");
+  PackageMap package_map;
+  package_map.PopulateUpstreamToDrake(full_name);
+
+  // Read in the SDF file.
+  AddModelFromSdfFile(full_name, "", package_map, &plant, nullptr);
+  plant.Finalize();
+
+  // Plant should have a UniformGravityFieldElement by default and our test
+  // sdf also has two additional spring forces
+  DRAKE_DEMAND(plant.num_force_elements() == 3);
+}
+
 GTEST_TEST(SdfParser, TestSupportedFrames) {
   // Test `//link/pose[@relative_to]`.
   ParseTestString(R"(

@@ -635,7 +635,10 @@ void DoScalarDependentDefinitions(py::module m, T) {
             cls_doc.num_collision_geometries.doc)
         .def("default_coulomb_friction", &Class::default_coulomb_friction,
             py::arg("geometry_id"), py_reference_internal,
-            cls_doc.default_coulomb_friction.doc);
+            cls_doc.default_coulomb_friction.doc)
+        .def("CollectRegisteredGeometries",
+            &Class::CollectRegisteredGeometries, py::arg("bodies"),
+            cls_doc.CollectRegisteredGeometries.doc);
     // Port accessors.
     cls  // BR
         .def("get_actuation_input_port",
@@ -702,10 +705,15 @@ void DoScalarDependentDefinitions(py::module m, T) {
             cls_doc.world_frame.doc)
         .def("is_finalized", &Class::is_finalized, cls_doc.is_finalized.doc)
         .def("Finalize", py::overload_cast<>(&Class::Finalize),
-            cls_doc.Finalize.doc)
+            cls_doc.Finalize.doc);
+    // Set contact parameters
+    cls // BR
         .def("set_penetration_allowance", &Class::set_penetration_allowance,
             py::arg("penetration_allowance") = 0.001,
-            cls_doc.set_penetration_allowance.doc);
+            cls_doc.set_penetration_allowance.doc)
+        .def("set_stiction_tolerance", &Class::set_stiction_tolerance,
+            py::arg("v_stiction") = 0.001,
+            cls_doc.set_stiction_tolerance.doc);
     // Position and velocity accessors and mutators.
     cls  // BR
         .def("GetMutablePositionsAndVelocities",

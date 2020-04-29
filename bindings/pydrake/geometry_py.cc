@@ -233,6 +233,11 @@ void DoScalarDependentDefinitions(py::module m, T) {
         .def("HasRenderer", &Class::HasRenderer, py::arg("name"),
             cls_doc.HasRenderer.doc)
         .def("RendererCount", &Class::RendererCount, cls_doc.RendererCount.doc)
+        .def("ExcludeCollisionsBetween",
+            py::overload_cast<const GeometrySet&, const GeometrySet&>(
+                &Class::ExcludeCollisionsBetween),
+            py_reference_internal, py::arg("setA"), py::arg("setB"),
+            cls_doc.ExcludeCollisionsBetween.doc_2args)
         // - Begin: AssignRole Overloads.
         // - - Proximity.
         .def("AssignRole",
@@ -610,6 +615,7 @@ void DoScalarIndependentDefinitions(py::module m) {
             py_reference_internal, cls_doc.perception_properties.doc);
   }
 
+
   {
     using Class = GeometryProperties;
     constexpr auto& cls_doc = doc.GeometryProperties;
@@ -674,6 +680,13 @@ void DoScalarIndependentDefinitions(py::module m) {
               return ss.str();
             },
             "Returns formatted string.");
+  }
+
+  // GeometrySet
+  {
+    using Class = GeometrySet;
+    constexpr auto& cls_doc = doc.GeometrySet;
+    py::class_<Class>(m, "GeometrySet", cls_doc.doc);
   }
 
   py::class_<ProximityProperties, GeometryProperties>(

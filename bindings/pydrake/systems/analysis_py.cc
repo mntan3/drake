@@ -13,6 +13,8 @@
 #include "drake/systems/analysis/runge_kutta3_integrator.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/analysis/simulator_flags.h"
+#include "drake/systems/analysis/simulator_print_stats.h"
+
 
 using std::unique_ptr;
 
@@ -175,7 +177,9 @@ PYBIND11_MODULE(analysis, m) {
           py::keep_alive<0, 1>(),
           pydrake_doc.drake.systems.ResetIntegratorFromFlags.doc)
       .def("GetIntegrationSchemes", &GetIntegrationSchemes,
-          pydrake_doc.drake.systems.GetIntegrationSchemes.doc);
+          pydrake_doc.drake.systems.GetIntegrationSchemes.doc)
+      .def("PrintSimulatorStatistics", &PrintSimulatorStatistics,
+          pydrake_doc.drake.systems.PrintSimulatorStatistics.doc);
 
   // Monte Carlo Testing
   {

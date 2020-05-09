@@ -388,7 +388,11 @@ void DoScalarDependentDefinitions(py::module m, T) {
             },
             py::arg("camera"), py::arg("parent_frame"), py::arg("X_PC"),
             py::arg("show_window") = false,
-            doc.QueryObject.RenderLabelImage.doc);
+            doc.QueryObject.RenderLabelImage.doc)
+        .def("X_WF",
+            &QueryObject<T>::X_WF,
+            py::arg("id"), doc.QueryObject.X_WF.doc
+        );
 
     AddValueInstantiation<QueryObject<T>>(m);
   }

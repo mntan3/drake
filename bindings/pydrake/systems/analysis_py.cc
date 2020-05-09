@@ -15,7 +15,6 @@
 #include "drake/systems/analysis/simulator_flags.h"
 #include "drake/systems/analysis/simulator_print_stats.h"
 
-
 using std::unique_ptr;
 
 namespace drake {
@@ -137,8 +136,7 @@ PYBIND11_MODULE(analysis, m) {
         .def("get_actual_realtime_rate",
             &Simulator<T>::get_actual_realtime_rate,
             doc.Simulator.get_actual_realtime_rate.doc)
-        .def("set_monitor",
-            &Simulator<T>::set_monitor, py::arg("monitor"),
+        .def("set_monitor", &Simulator<T>::set_monitor, py::arg("monitor"),
             doc.Simulator.set_monitor.doc)
         .def("ResetStatistics", &Simulator<T>::ResetStatistics,
             doc.Simulator.ResetStatistics.doc);
@@ -164,7 +162,8 @@ PYBIND11_MODULE(analysis, m) {
 
   // Simulator Flags
   m  // BR
-      .def("ResetIntegratorFromFlags",
+      .def(
+          "ResetIntegratorFromFlags",
           [](Simulator<double>* simulator, const std::string& scheme,
               const double& max_step_size) {
             IntegratorBase<double>& result =

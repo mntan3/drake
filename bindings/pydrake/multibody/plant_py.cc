@@ -260,7 +260,10 @@ void DoScalarDependentDefinitions(py::module m, T) {
                 const RigidTransform<T>&>(&Class::SetFreeBodyPose),
             py::arg("context"), py::arg("body"), py::arg("X_WB"),
             cls_doc.SetFreeBodyPose.doc_3args)
-        .def("SetFreeBodyPose",
+        .def("GetFreeBodyPose", &Class::GetFreeBodyPose, py::arg("context"),
+            py::arg("body"), cls_doc.SetFreeBodyPose.doc_3args)
+        .def(
+            "SetFreeBodyPose",
             [](const Class* self, Context<T>* context, const Body<T>& body,
                 const Isometry3<T>& X_WB) {
               WarnDeprecated(doc_iso3_deprecation);
@@ -272,7 +275,13 @@ void DoScalarDependentDefinitions(py::module m, T) {
         .def("SetDefaultFreeBodyPose", &Class::SetDefaultFreeBodyPose,
             py::arg("body"), py::arg("X_WB"),
             cls_doc.SetDefaultFreeBodyPose.doc)
-        .def("SetActuationInArray",
+        .def("SetFreeBodyPoseInWorldFrame",
+            overload_cast_explicit<void, Context<T>*, const Body<T>&,
+                const RigidTransform<T>&>(&Class::SetFreeBodyPose),
+            py::arg("context"), py::arg("body"), py::arg("X_WB"),
+            cls_doc.SetFreeBodyPose.doc_3args)
+        .def(
+            "SetActuationInArray",
             [](const Class* self, multibody::ModelInstanceIndex model_instance,
                 const Eigen::Ref<const VectorX<T>> u_instance,
                 Eigen::Ref<VectorX<T>> u) -> void {

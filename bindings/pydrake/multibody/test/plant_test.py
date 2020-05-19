@@ -392,9 +392,9 @@ class TestPlant(unittest.TestCase):
             bodyB=body_b, p_BQ=[0., 0., 0.],
             free_length=1., stiffness=2., damping=3.))
         revolute_joint = plant.AddJoint(RevoluteJoint_[T](
-                name="revolve_joint", frame_on_parent=body_a.body_frame(),
-                frame_on_child=body_b.body_frame(), axis=[0, 0, 1],
-                damping=0.))
+            name="revolve_joint", frame_on_parent=body_a.body_frame(),
+            frame_on_child=body_b.body_frame(), axis=[0, 0, 1],
+            damping=0.))
         revolute_spring = plant.AddForceElement(RevoluteSpring(
             joint=revolute_joint, nominal_angle=0.1, stiffness=100.))
         door_hinge_config = DoorHingeConfig()
@@ -504,7 +504,7 @@ class TestPlant(unittest.TestCase):
         plant.SetFreeBodyPose(
             context=context, body=base, X_WB=X_WB_desired)
         numpy_compare.assert_float_equal(
-                X_WB.matrix(), numpy_compare.to_float(X_WB_desired.matrix()))
+            X_WB.matrix(), numpy_compare.to_float(X_WB_desired.matrix()))
 
         # Set a spatial velocity for the base.
         v_WB = SpatialVelocity(w=[1, 2, 3], v=[4, 5, 6])
@@ -512,10 +512,10 @@ class TestPlant(unittest.TestCase):
             context=context, body=base, V_WB=v_WB)
         v_base = plant.EvalBodySpatialVelocityInWorld(context, base)
         numpy_compare.assert_float_equal(
-                v_base.rotational(), numpy_compare.to_float(v_WB.rotational()))
+            v_base.rotational(), numpy_compare.to_float(v_WB.rotational()))
         numpy_compare.assert_float_equal(
-                v_base.translational(),
-                numpy_compare.to_float(v_WB.translational()))
+            v_base.translational(),
+            numpy_compare.to_float(v_WB.translational()))
 
         # Compute accelerations.
         vdot = np.zeros(nv)
@@ -676,7 +676,7 @@ class TestPlant(unittest.TestCase):
                     converter=converter)
 
             def DoCalcAbstractOutput(self, context, y_data):
-                test_force = ExternallyAppliedSpatialForce_[T]()
+                test_force = _[T]()
                 test_force.body_index = self.target_body_index
                 test_force.p_BoBq_B = np.zeros(3)
                 test_force.F_Bq_W = SpatialForce_[T](
@@ -766,8 +766,8 @@ class TestPlant(unittest.TestCase):
         X_EeGripper = RigidTransform_[float](
             RollPitchYaw_[float](np.pi / 2, 0, np.pi / 2), [0, 0, 0.081])
         plant_f.WeldFrames(
-                A=plant_f.world_frame(),
-                B=plant_f.GetFrameByName("iiwa_link_0", iiwa_model))
+            A=plant_f.world_frame(),
+            B=plant_f.GetFrameByName("iiwa_link_0", iiwa_model))
         plant_f.WeldFrames(
             A=plant_f.GetFrameByName("iiwa_link_7", iiwa_model),
             B=plant_f.GetFrameByName("body", gripper_model),
@@ -814,7 +814,7 @@ class TestPlant(unittest.TestCase):
         # Do the iiwa model first.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetPositionsAndVelocities(context, iiwa_model, x_iiwa_desired)
         numpy_compare.assert_float_equal(
             plant.GetPositionsAndVelocities(context, iiwa_model),
@@ -824,21 +824,21 @@ class TestPlant(unittest.TestCase):
         # Do the gripper model.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetPositionsAndVelocities(
             context, gripper_model, x_gripper_desired)
         numpy_compare.assert_float_equal(
             plant.GetPositionsAndVelocities(context, gripper_model),
             x_gripper_desired)
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context, iiwa_model),
-                np.zeros(nq_iiwa + nv_iiwa))
+            plant.GetPositionsAndVelocities(context, iiwa_model),
+            np.zeros(nq_iiwa + nv_iiwa))
 
         # Check SetPositions() for each model instance.
         # Do the iiwa model first.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetPositions(context, iiwa_model, q_iiwa_desired)
         numpy_compare.assert_float_equal(
             plant.GetPositions(context, iiwa_model), q_iiwa_desired)
@@ -849,7 +849,7 @@ class TestPlant(unittest.TestCase):
         # Do the gripper model.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetPositions(context, gripper_model, q_gripper_desired)
         numpy_compare.assert_float_equal(
             plant.GetPositions(context, gripper_model),
@@ -863,7 +863,7 @@ class TestPlant(unittest.TestCase):
         # Do the iiwa model first.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetVelocities(context, iiwa_model, v_iiwa_desired)
         numpy_compare.assert_float_equal(
             plant.GetVelocities(context, iiwa_model), v_iiwa_desired)
@@ -874,7 +874,7 @@ class TestPlant(unittest.TestCase):
         # Do the gripper model.
         plant.SetPositionsAndVelocities(context, np.zeros(nq + nv))
         numpy_compare.assert_float_equal(
-                plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
+            plant.GetPositionsAndVelocities(context), np.zeros(nq + nv))
         plant.SetVelocities(context, gripper_model, v_gripper_desired)
         numpy_compare.assert_float_equal(
             plant.GetVelocities(context, gripper_model),
@@ -1237,7 +1237,7 @@ class TestPlant(unittest.TestCase):
         link2.AddInForceInWorld(
             context, F_Bo_W=SpatialForce(F=F_expected), forces=forces)
         coeff = numpy_compare.to_float(
-                link2.GetForceInWorld(context, forces).get_coeffs())
+            link2.GetForceInWorld(context, forces).get_coeffs())
         numpy_compare.assert_float_equal(coeff, F_expected)
         link2.AddInForce(
             context, p_BP_E=[0, 0, 0], F_Bp_E=SpatialForce(F=F_expected),

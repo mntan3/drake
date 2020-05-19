@@ -4,6 +4,7 @@
 #include "pybind11/functional.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
+#include "pybind11/stl_bind.h"
 
 #include "drake/bindings/pydrake/autodiff_types_pybind.h"
 #include "drake/bindings/pydrake/common/cpp_template_pybind.h"
@@ -25,6 +26,8 @@
 #include "drake/math/roll_pitch_yaw.h"
 #include "drake/math/rotation_matrix.h"
 #include "drake/math/wrap_to.h"
+
+PYBIND11_MAKE_OPAQUE(std::vector<drake::math::RigidTransform<double>>);
 
 namespace drake {
 namespace pydrake {
@@ -106,15 +109,18 @@ void DoScalarDependentDefinitions(py::module m, T) {
         // .def("IsExactlyIdentity", ...)
         // .def("IsIdentityToEpsilon", ...)
         .def("inverse", &Class::inverse, cls_doc.inverse.doc)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class* self, const Class& other) { return *self * other; },
             py::arg("other"), cls_doc.operator_mul.doc_1args_other)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class* self, const Vector3<T>& p_BoQ_B) {
               return *self * p_BoQ_B;
             },
             py::arg("p_BoQ_B"), cls_doc.operator_mul.doc_1args_p_BoQ_B)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class* self, const Matrix3X<T>& p_BoQ_B) {
               return *self * p_BoQ_B;
             },
@@ -134,6 +140,21 @@ void DoScalarDependentDefinitions(py::module m, T) {
     // .def("IsNearlyEqualTo", ...)
     // .def("IsExactlyEqualTo", ...)
     AddValueInstantiation<RigidTransform<T>>(m);
+  }
+
+  {
+    using Class = std::vector<RigidTransform<T>>;
+    // TODO(eric.cousineau): Try to make this specialization for
+    // `py::bind_vector` less boiler-platey, like
+    // `DefineTemplateClassWithDefault`.
+    const std::string default_name = "VectorRigidTransform";
+    const std::string template_name = default_name + "_";
+    auto cls = py::bind_vector<Class>(m, TemporaryClassName<Class>().c_str());
+    AddTemplateClass(m, template_name.c_str(), cls, param);
+    if (!py::hasattr(m, default_name.c_str())) {
+      m.attr(default_name.c_str()) = cls;
+    }
+    AddValueInstantiation<Class>(m);
   }
 
   {
@@ -166,13 +187,16 @@ void DoScalarDependentDefinitions(py::module m, T) {
         .def("matrix", &Class::matrix, cls_doc.matrix.doc)
         .def("row", &Class::row, py::arg("index"), cls_doc.row.doc)
         .def("col", &Class::col, py::arg("index"), cls_doc.col.doc)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class& self, const Class& other) { return self * other; },
             py::arg("other"), cls_doc.operator_mul.doc_1args_other)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class& self, const Vector3<T>& v_B) { return self * v_B; },
             py::arg("v_B"), cls_doc.operator_mul.doc_1args_v_B)
-        .def("multiply",
+        .def(
+            "multiply",
             [](const Class& self, const Matrix3X<T>& v_B) {
               return self * v_B;
             },
@@ -185,7 +209,8 @@ void DoScalarDependentDefinitions(py::module m, T) {
             &Class::IsIdentityToInternalTolerance,
             cls_doc.IsIdentityToInternalTolerance.doc)
         // Does not return the quality_factor
-        .def_static("ProjectToRotationMatrix",
+        .def_static(
+            "ProjectToRotationMatrix",
             [](const Matrix3<T>& M) {
               return RotationMatrix<T>::ProjectToRotationMatrix(M);
             },
@@ -278,7 +303,8 @@ void DoScalarIndependentDefinitions(py::module m) {
   using T = double;
   m.def("wrap_to", &wrap_to<T, T>, py::arg("value"), py::arg("low"),
       py::arg("high"), doc.wrap_to.doc);
-  m.def("ComputeBasisFromAxis",
+  m.def(
+      "ComputeBasisFromAxis",
       [](int axis_index, const Vector3<T>& axis) {
         return ComputeBasisFromAxis(axis_index, axis);
       },
@@ -300,7 +326,8 @@ void DoScalarIndependentDefinitions(py::module m) {
           doc.BarycentricMesh.get_mesh_point.doc_1args)
       .def("get_all_mesh_points", &BarycentricMesh<T>::get_all_mesh_points,
           doc.BarycentricMesh.get_all_mesh_points.doc)
-      .def("EvalBarycentricWeights",
+      .def(
+          "EvalBarycentricWeights",
           [](const BarycentricMesh<T>* self,
               const Eigen::Ref<const VectorX<T>>& input) {
             const int n = self->get_num_interpolants();
@@ -320,17 +347,20 @@ void DoScalarIndependentDefinitions(py::module m) {
 
   // Matrix Util.
   m  // BR
-      .def("IsSymmetric",
+      .def(
+          "IsSymmetric",
           [](const Eigen::Ref<const MatrixX<T>>& matrix) {
             return IsSymmetric(matrix);
           },
           py::arg("matrix"), doc.IsSymmetric.doc_1args)
-      .def("IsSymmetric",
+      .def(
+          "IsSymmetric",
           [](const Eigen::Ref<const MatrixX<T>>& matrix, const T& precision) {
             return IsSymmetric(matrix, precision);
           },
           py::arg("matrix"), py::arg("precision"), doc.IsSymmetric.doc_2args)
-      .def("IsPositiveDefinite",
+      .def(
+          "IsPositiveDefinite",
           [](const Eigen::Ref<const Eigen::MatrixXd>& matrix,
               double tolerance) {
             return IsPositiveDefinite(matrix, tolerance);
@@ -385,8 +415,9 @@ void DoScalarIndependentDefinitions(py::module m) {
       .def("asin", [](double x) { return asin(x); })
       .def("acos", [](double x) { return acos(x); })
       .def("atan", [](double x) { return atan(x); })
-      .def("atan2", [](double y, double x) { return atan2(y, x); },
-          py::arg("y"), py::arg("x"))
+      .def(
+          "atan2", [](double y, double x) { return atan2(y, x); }, py::arg("y"),
+          py::arg("x"))
       .def("sinh", [](double x) { return sinh(x); })
       .def("cosh", [](double x) { return cosh(x); })
       .def("tanh", [](double x) { return tanh(x); })

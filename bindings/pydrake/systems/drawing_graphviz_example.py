@@ -5,8 +5,10 @@ from pydrake.geometry import ConnectDrakeVisualizer, SceneGraph
 from pydrake.lcm import DrakeLcm
 from pydrake.multibody.parsing import Parser
 from pydrake.multibody.plant import MultibodyPlant
+from pydrake.systems.analysis import Simulator
 from pydrake.systems.drawing import plot_graphviz, plot_system_graphviz
 from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.primitives import ConstantVectorSource
 
 file_name = FindResourceOrThrow(
     "drake/examples/multibody/cart_pole/cart_pole.sdf")
@@ -17,10 +19,9 @@ cart_pole.RegisterAsSourceForSceneGraph(scene_graph)
 Parser(plant=cart_pole).AddModelFromFile(file_name)
 
 plt.figure()
-plot_graphviz(cart_pole.GetTopologyGraphvizString())
 
 cart_pole.Finalize()
-assert cart_pole.geometry_source_is_registered()
+val = builder.AddSystem(ConstantVectorSource([0]))
 
 builder.Connect(
     scene_graph.get_query_output_port(),
@@ -28,14 +29,13 @@ builder.Connect(
 builder.Connect(
     cart_pole.get_geometry_poses_output_port(),
     scene_graph.get_source_pose_port(cart_pole.get_source_id()))
-builder.ExportInput(cart_pole.get_actuation_input_port())
+builder.Connect(val.get_output_port(0),
+                cart_pole.get_actuation_input_port())
 
-ConnectDrakeVisualizer(builder=builder, scene_graph=scene_graph)
+ConnectDrakeVisualizer(builder=builder, scene_graph=scene_graph, lcm=DrakeLcm())
 
 diagram = builder.Build()
-diagram.set_name("graphviz_example")
 
-plt.figure()
-plot_system_graphviz(diagram, max_depth=2)
-
-plt.show()
+simulator = Simulator(diagram)
+simulator.Initialize()
+simulator.AdvanceTo(4)
